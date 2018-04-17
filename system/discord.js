@@ -6,6 +6,8 @@ var storage = require('./storage/index');
 
 var events = new EventHandler();
 
+var ctable = new Map();
+
 module.exports.events = events;
 
 module.exports.client = null;
@@ -46,6 +48,18 @@ module.exports.start = function(){
         });
         events.emit('ready');
         setInterval(function(){
+            ctable.forEach(function(td){
+                if(td.locked)
+                {
+                    if(td.counter <= 0)
+                    {
+                        td.locked = false;
+                        td.counter = 0;
+                    }
+                }
+                td.counter -= (1-(td.ts/Date.now()))*10000000;
+                td.counter = td.counter < 0 ? 0 : td.counter;
+            });
             client.guilds.forEach(function(guild){
                 storage.findRooms(guild.id, function(rooms){
                     rooms.forEach(function(room){
@@ -96,6 +110,27 @@ module.exports.start = function(){
             if(!server) return;
             if(message.channel.id != server.dvchannel && !message.member.hasPermission('ADMINISTRATOR')) return;
             if(message.content.split(' ')[0] != '~dv') return;
+            var td = ctable.get(message.member.id);
+            if(td)
+            {
+                if(td.locked) return;
+                var calc = Date.now() - td.ts;
+                td.counter += 1;
+                if(td.counter >= 5)
+                {
+                    td.locked = true;
+                    message.reply('You must wait a bit before issuing commands.');
+                    return;
+                }
+            }
+            else
+            {
+                ctable.set(message.member.id, {
+                    ts: Date.now(),
+                    counter: 1,
+                    locked: false
+                });
+            }
             var data = {
                 raw: message.content.split(' ').slice(1).join(' '),
                 message: message
