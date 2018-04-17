@@ -108,7 +108,13 @@ module.exports.start = function(){
         if(message.channel.type == 'dm') return;
         storage.getServer(message.guild.id, function(server){
             if(!server) return;
-            if(message.channel.id != server.dvchannel && !message.member.hasPermission('ADMINISTRATOR')) return;
+            if(message.channel.id != server.dvchannel)
+            {
+                if(!message.member.hasPermission('ADMINISTRATOR'))
+                {
+                    return;
+                }
+            }
             if(message.content.split(' ')[0] != '~dv') return;
             var td = ctable.get(message.member.id);
             if(td)
