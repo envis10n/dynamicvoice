@@ -1,0 +1,24 @@
+{
+  "name": "dynamicvoice",
+  "version": "1.0.0",
+  "description": "Dynamic voice channels for discord.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/envis10n/dynamicvoice.git"
+  },
+  "author": "envis10n",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/envis10n/dynamicvoice/issues"
+  },
+  "homepage": "https://github.com/envis10n/dynamicvoice#readme",
+  "dependencies": {
+    "bufferutil": "^3.0.4",
+    "discord.js": "^11.3.2",
+    "mongodb": "^3.0.6"
+  }
+}
