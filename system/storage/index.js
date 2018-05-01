@@ -1,6 +1,8 @@
 var db = require('./mongodb/index');
 const shortid = require('shortid');
 const EventHandler = require('events');
+const Discord = require('discord.js');
+var bot = require('../discord');
 
 module.exports.events = new EventHandler();
 
@@ -12,7 +14,38 @@ db.events.on('ready', function(){
 module.exports.log = function(data){
     data = Object.assign({}, data, {ts: Date.now()});
     db.insert('logs', data);
+    if(bot.logchannel == undefined) return;
+    var embed = new Discord.RichEmbed();
+    embed.setAuthor('DynamicVoice');
+    embed.setTitle(data.type);
+    embed.setDescription(data.message);
+    embed.setTimestamp(new Date(data.ts));
+    embed.setFooter('DynamicVoice Logger');
+    bot.logchannel.send(embed);
 };
+
+module.exports.getLogChannel = function(cb){
+    db.find('settings', {name: "logchannel"}, function(err, settings){
+        if(err) throw err;
+        if(!settings) cb("")
+        else
+        {
+            if(settings.length < 0)
+            {
+                db.insert('settings', {name: "logchannel", value: ""});
+                cb("");
+            }
+            else
+            {
+                cb(settings[0].value);
+            }
+        }
+    });
+}
+
+module.exports.setLogChannel = function(channelid){
+    db.updateOne('settings', {name:"logchannel"}, {value: channelid});
+}
 
 module.exports.addServer = function(sid, cid, cb){
     var server = {

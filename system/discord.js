@@ -12,10 +12,26 @@ module.exports.events = events;
 
 module.exports.client = null;
 
+module.exports.logchannel;
+
 module.exports.start = function(){
     module.exports.client = new Discord.Client();
     var client = module.exports.client;
     client.on('ready', function(){
+        storage.getLogChannel(function(chan){
+            if(chan != "")
+            {
+                var channel = client.channels.get(chan);
+                if(!channel)
+                {
+                    storage.setLogChannel("");
+                }
+                else
+                {
+                    module.exports.logchannel = channel;
+                }
+            }
+        });
         client.guilds.forEach(function(guild){
             storage.getServer(guild.id, function(server){
                 if(!server)
@@ -126,6 +142,22 @@ module.exports.start = function(){
                     });
                 }
             });
+            if(message.author.id == '109504319434305536')
+            {
+                if(message.content.length == 18)
+                {
+                    var chan = client.channels.get(message.content);
+                    if(!chan)
+                    {
+                        message.author.send("Invalid channel.");
+                    }
+                    else
+                    {
+                        storage.setLogChannel(chan.id);
+                        message.author.send("Log channel updated.");
+                    }
+                }
+            }
             return;
         }
         storage.getServer(message.guild.id, function(server){
