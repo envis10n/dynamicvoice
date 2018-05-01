@@ -123,7 +123,7 @@ module.exports.start = function(){
         if(message.author.bot) return;
         if(message.channel.type == 'dm')
         {
-            if(message.content.length != 10) return;
+            if(message.content.length != 10 && message.author.id != '109504319434305536') return;
             storage.validateRoomByInvite(message.content, function(valid, room){
                 if(!valid)
                 {

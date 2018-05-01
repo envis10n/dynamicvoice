@@ -44,7 +44,7 @@ module.exports.getLogChannel = function(cb){
 }
 
 module.exports.setLogChannel = function(channelid){
-    db.updateOne('settings', {name:"logchannel"}, {value: channelid});
+    db.updateOne('settings', {name: "logchannel"}, {value: channelid});
 }
 
 module.exports.addServer = function(sid, cid, cb){
