@@ -1,6 +1,7 @@
 const Command = require('../../lib/Command');
 var storage = require('../storage/index');
-
+var bot = require('../discord');
+const shortid = require('shortid');
 var router = new Command();
 
 // Example log all messages coming from users (no bots, no DMs)
@@ -93,10 +94,31 @@ router.use('category', function(data){
     });
 });
 
-router.use('room', function(data){
-    var command = data.raw.split(' ')[0];
-    data.raw = data.raw.split(' ').slice(1).join(' ');
-    require('./room/index').run(command, data);
+router.use('create', function(data){
+    var guild = data.message.guild;
+    storage.findRoom(data.message.member.id, guild.id, function(room){
+        if(room)
+        {
+            data.message.reply('You already have a valid room.');
+            data.message.delete();
+        }
+        else
+        {
+            guild.createChannel(data.message.member.displayName+'-'+shortid.generate(), 'voice',[{id: guild.id, deny: 36701184}, {id: data.message.member.id, allow: 36701184}], 'DynamicVoice')
+            .then(function(channel){
+                storage.getServer(guild.id, function(server){
+                    if(!server) channel.delete();
+                    if(server.dvcategory != '')
+                        channel.setParent(server.dvcategory);
+                    storage.createRoom(data.message.member.id, channel.id, guild.id, function(room){
+                        data.message.member.send('Your channel has been created. Invite users by giving them this invite code: `'+room.invite+'`.\nThey can DM me this code to see your channel.');
+                        data.message.delete();
+                    });
+                });
+            })
+            .catch(console.error);
+        }
+    });
 });
 
 // Error handler

@@ -67,6 +67,21 @@ module.exports.validateRoom = function(sid, invite, cb){
     });
 };
 
+module.exports.validateRoomByInvite = function(invite, cb){
+    db.find('rooms', {invite: invite}, function(err, rooms){
+        if(err) throw err;
+        var room = rooms[0];
+        if(!room)
+        {
+            cb(false, null);
+        }
+        else
+        {
+            cb(true, room);
+        }
+    });
+}
+
 module.exports.deleteRoom = function(uid, sid, rid, cb){
     db.deleteOne('rooms', {uid: uid, rid: rid, sid: sid}, cb);
 };

@@ -105,7 +105,28 @@ module.exports.start = function(){
     });
     client.on('message', function(message){
         if(message.author.bot) return;
-        if(message.channel.type == 'dm') return;
+        if(message.channel.type == 'dm')
+        {
+            if(!message.length == 10) return;
+            storage.validateRoomByInvite(message, function(valid, room){
+                if(!valid)
+                {
+                    return;
+                }
+                else
+                {
+                    var guild = client.guilds.get(sid);
+                    if(!server) return;
+                    var member = guild.members.get(message.author.id);
+                    if(!member) return;
+                    var channel = guild.channels.get(room.rid);
+                    channel.overwritePermissions(member.id, {'VIEW_CHANNEL': true, 'CONNECT': true,'SPEAK': true, 'USE_VAD': true}, 'DynamicVoice Invite')
+                    .then(function(update){
+                        member.send('Invite validated. You should now be able to see the channel: `'+channel.name+'`.');
+                    });
+                }
+            });
+        }
         storage.getServer(message.guild.id, function(server){
             if(!server) return;
             if(message.content.split(' ')[0] != '~dv') return;
