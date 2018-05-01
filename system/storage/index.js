@@ -30,7 +30,7 @@ module.exports.getLogChannel = function(cb){
         if(!settings) cb("")
         else
         {
-            if(settings.length < 0)
+            if(settings.length == 0)
             {
                 db.insert('settings', {name: "logchannel", value: ""});
                 cb("");
